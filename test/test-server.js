@@ -80,6 +80,34 @@ describe('configs', function() {
     });
   });
 
+  it('should return an id on /config POST', function(done) {
+  chai.request('http://localhost:8080')
+    .post('/config')
+    .send({"name": "host58594", "hostname": "thing-584940.aplace.com", "port":5858,"username":"pdoeocoe"})
+    .end(function(err, res){
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.should.be.a('object');
+      expect(res.body).to.have.property('id');
+
+      done();
+    });
+  });
+
+  it('should return an id on /config POST', function(done) {
+  chai.request('http://localhost:8080')
+    .post('/config')
+    .send({"name": "host4848484", "hostname": "thing-5848484.aplace.com", "port":54930,"username":"djdkcldle"})
+    .end(function(err, res){
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.should.be.a('object');
+      expect(res.body).to.have.property('id');
+
+      done();
+    });
+  });
+
   it('should sort configs on /config?sort=name', function(done) {
     chai.request('http://localhost:8080')
       .get('/config?sort=name')
@@ -131,7 +159,32 @@ describe('configs', function() {
           done();
       });
   });
+
+  it('should paginate configs on /config?sort=username&page=2&perpage=2', function(done) {
+    chai.request('http://localhost:8080')
+      .get('/config?sort=username&page=2&perpage=2')
+      .end(function(err, res){
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('object');
+          expect(res.body).to.have.property('configs');
+          res.body.configs[0].username.should.equal("pdoeocoe");
+          done();
+      });
+  });
   
+  it('should paginate configs on /config?sort=username&page=3&perpage=2', function(done) {
+    chai.request('http://localhost:8080')
+      .get('/config?sort=username&page=3&perpage=2')
+      .end(function(err, res){
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('object');
+          expect(res.body).to.have.property('configs');
+          res.body.configs[0].username.should.equal("testy");
+          done();
+      });
+  });
 
   
 });

@@ -13,15 +13,18 @@ http.createServer(function(request, response) {
   var method = request.method;
   var url = request.url;
   var urlObject = URL.parse(request.url,true);
-  var queryStringObject = urlObject.query
-  var sort = queryStringObject.sort
-  var pagination = queryStringObject.page
+  var queryStringObject = urlObject.query;
+  var sort = queryStringObject.sort;
+  var page = queryStringObject.page;
+  var perpage = queryStringObject.perpage;
+  console.log ("page:"+page);
+  console.log ("per page:"+perpage);
   console.log("sort:"+sort);
   console.log("URL: "+url);
   var body = [];
   console.log('checking request method');
 
-  if(request.method === 'GET' && request.url.match(/\/config*/) && sort != null){
+  if(request.method === 'GET' && request.url.match(/\/config*/) && sort !== null){
     if(sort == "name"){
       configs.sort(sortByProperty("name"));
     } else if(sort == "hostname") {
@@ -31,10 +34,19 @@ http.createServer(function(request, response) {
     } else {
       configs.sort(sortByProperty("username"));
     }
+    var done = null;
+    var paginatedArray = null;
+    if(page && perpage){
+      paginatedArray = paginate(perpage, page, configs);
+      done = {"configs":paginatedArray};
+      console.log("paginated:"+JSON.stringify(done));
+    } else {
+      done = {configs};
+    }
     response.statusCode = 200;
     response.setHeader('Content-Type', 'application/json');
-      
-    response.write(JSON.stringify({configs}));
+    
+    response.write(JSON.stringify(done));
     response.end();
 
   //Plain LIST config
@@ -160,10 +172,17 @@ http.createServer(function(request, response) {
   }
 }).listen(8080);
 
+
+
+
+function paginate(perpage, page, anArray){
+  return anArray.slice( (page - 1) * perpage, page * perpage );
+}
+
 function sortByProperty(property) {
     return function (a,b) {
         var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
         return result;
-    }
+    };
 }
 
